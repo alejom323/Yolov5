@@ -13,6 +13,20 @@ st.set_page_config(
     layout="wide"
 )
 
+# Estilos personalizados: fondo gris y tipografía alternativa
+st.markdown("""
+    <style>
+        body {
+            background-color: #f0f0f0;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .stApp {
+            background-color: #f0f0f0;
+            font-family: 'Segoe UI', sans-serif;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # Función para cargar el modelo YOLOv5 de manera compatible con versiones anteriores de PyTorch
 @st.cache_resource
 def load_yolov5_model(model_path='yolov5s.pt'):
