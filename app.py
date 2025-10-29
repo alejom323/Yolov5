@@ -13,30 +13,34 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilos personalizados: fondo amarillo, tipografía Rubik, barra lateral negra y sliders negros
+# Estilos personalizados: fondo amarillo, tipografía Rubik, barra lateral negra, sliders negros
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Rubik&display=swap');
 
         body, .stApp {
-            background-color: #fff176; /* Amarillo claro */
+            background-color: #fff176; /* Fondo amarillo claro */
             font-family: 'Rubik', sans-serif;
         }
 
         /* Barra lateral */
         section[data-testid="stSidebar"] {
-            background-color: #000000 !important; /* Fondo negro */
-            color: white;
+            background-color: #fff176 !important; /* Fondo amarillo */
+            color: black;
         }
 
         /* Texto en la barra lateral */
         section[data-testid="stSidebar"] .css-1v3fvcr {
-            color: white !important;
+            color: black !important;
         }
 
-        /* Sliders personalizados */
-        div[data-testid="stSlider"] > div > div {
-            background-color: #000000 !important; /* Color negro para la barra */
+        /* Sliders personalizados: barra negra */
+        div[data-testid="stSlider"] .stSlider > div > div:nth-child(1) {
+            background-color: #000000 !important; /* Barra activa negra */
+        }
+
+        div[data-testid="stSlider"] .stSlider > div > div:nth-child(2) {
+            background-color: #d3d3d3 !important; /* Barra inactiva gris claro */
         }
 
         /* Etiquetas y subtítulos */
@@ -46,7 +50,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Función para cargar el modelo YOLOv5 de manera compatible con versiones anteriores de PyTorch
+# Función para cargar el modelo YOLOv5
 @st.cache_resource
 def load_yolov5_model(model_path='yolov5s.pt'):
     try:
@@ -80,7 +84,7 @@ def load_yolov5_model(model_path='yolov5s.pt'):
         """)
         return None
 
-# Título y descripción de la aplicación
+# Título y descripción
 st.title("🔍 Detección de Objetos en Imágenes")
 st.markdown("""
 Esta aplicación utiliza YOLOv5 para detectar objetos en imágenes capturadas con tu cámara.
@@ -91,7 +95,7 @@ Ajusta los parámetros en la barra lateral para personalizar la detección.
 with st.spinner("Cargando modelo YOLOv5..."):
     model = load_yolov5_model()
 
-# Si el modelo se cargó correctamente, configuramos los parámetros
+# Configuración si el modelo se cargó
 if model:
     st.sidebar.title("Parámetros")
     
