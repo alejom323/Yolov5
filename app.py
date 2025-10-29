@@ -13,16 +13,35 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilos personalizados: fondo gris y tipografía alternativa
+# Estilos personalizados: fondo amarillo, tipografía Rubik, barra lateral negra y sliders negros
 st.markdown("""
     <style>
-        body {
-            background-color: #f0f0f0;
-            font-family: 'Segoe UI', sans-serif;
+        @import url('https://fonts.googleapis.com/css2?family=Rubik&display=swap');
+
+        body, .stApp {
+            background-color: #fff176; /* Amarillo claro */
+            font-family: 'Rubik', sans-serif;
         }
-        .stApp {
-            background-color: #f0f0f0;
-            font-family: 'Segoe UI', sans-serif;
+
+        /* Barra lateral */
+        section[data-testid="stSidebar"] {
+            background-color: #000000 !important; /* Fondo negro */
+            color: white;
+        }
+
+        /* Texto en la barra lateral */
+        section[data-testid="stSidebar"] .css-1v3fvcr {
+            color: white !important;
+        }
+
+        /* Sliders personalizados */
+        div[data-testid="stSlider"] > div > div {
+            background-color: #000000 !important; /* Color negro para la barra */
+        }
+
+        /* Etiquetas y subtítulos */
+        h1, h2, h3, h4, h5, h6, p, label, span {
+            font-family: 'Rubik', sans-serif !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -31,34 +50,22 @@ st.markdown("""
 @st.cache_resource
 def load_yolov5_model(model_path='yolov5s.pt'):
     try:
-        # Importar yolov5
         import yolov5
-        
-        # Para versiones de PyTorch anteriores a 2.0, cargar directamente con weights_only=False
-        # o usar el parámetro map_location para asegurar compatibilidad
         try:
-            # Primer método: cargar con weights_only=False si la versión lo soporta
             model = yolov5.load(model_path, weights_only=False)
             return model
         except TypeError:
-            # Segundo método: si el primer método falla, intentar un enfoque más básico
             try:
                 model = yolov5.load(model_path)
                 return model
             except Exception as e:
-                # Si todo falla, intentar cargar el modelo con torch directamente
                 st.warning(f"Intentando método alternativo de carga...")
-                
-                # Modificar sys.path temporalmente para poder importar torch correctamente
                 current_dir = os.path.dirname(os.path.abspath(__file__))
                 if current_dir not in sys.path:
                     sys.path.append(current_dir)
-                
-                # Cargar el modelo con torch directamente
                 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
                 model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
                 return model
-    
     except Exception as e:
         st.error(f"❌ Error al cargar el modelo: {str(e)}")
         st.info("""
@@ -86,17 +93,14 @@ with st.spinner("Cargando modelo YOLOv5..."):
 
 # Si el modelo se cargó correctamente, configuramos los parámetros
 if model:
-    # Sidebar para los parámetros de configuración
     st.sidebar.title("Parámetros")
     
-    # Ajustar parámetros del modelo
     with st.sidebar:
         st.subheader('Configuración de detección')
         model.conf = st.slider('Confianza mínima', 0.0, 1.0, 0.25, 0.01)
         model.iou = st.slider('Umbral IoU', 0.0, 1.0, 0.45, 0.01)
         st.caption(f"Confianza: {model.conf:.2f} | IoU: {model.iou:.2f}")
         
-        # Opciones adicionales
         st.subheader('Opciones avanzadas')
         try:
             model.agnostic = st.checkbox('NMS class-agnostic', False)
@@ -105,19 +109,15 @@ if model:
         except:
             st.warning("Algunas opciones avanzadas no están disponibles con esta configuración")
     
-    # Contenedor principal para la cámara y resultados
     main_container = st.container()
     
     with main_container:
-        # Capturar foto con la cámara
         picture = st.camera_input("Capturar imagen", key="camera")
         
         if picture:
-            # Procesar la imagen capturada
             bytes_data = picture.getvalue()
             cv2_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
             
-            # Realizar la detección
             with st.spinner("Detectando objetos..."):
                 try:
                     results = model(cv2_img)
@@ -125,39 +125,27 @@ if model:
                     st.error(f"Error durante la detección: {str(e)}")
                     st.stop()
             
-            # Parsear resultados
             try:
                 predictions = results.pred[0]
                 boxes = predictions[:, :4]
                 scores = predictions[:, 4]
                 categories = predictions[:, 5]
                 
-                # Mostrar resultados
                 col1, col2 = st.columns(2)
                 
                 with col1:
                     st.subheader("Imagen con detecciones")
-                    # Renderizar las detecciones
                     results.render()
-                    # Mostrar imagen con las detecciones
                     st.image(cv2_img, channels='BGR', use_container_width=True)
                 
                 with col2:
                     st.subheader("Objetos detectados")
-                    
-                    # Obtener nombres de etiquetas
                     label_names = model.names
-                    
-                    # Contar categorías
                     category_count = {}
                     for category in categories:
                         category_idx = int(category.item()) if hasattr(category, 'item') else int(category)
-                        if category_idx in category_count:
-                            category_count[category_idx] += 1
-                        else:
-                            category_count[category_idx] = 1
+                        category_count[category_idx] = category_count.get(category_idx, 0) + 1
                     
-                    # Crear dataframe para mostrar resultados
                     data = []
                     for category, count in category_count.items():
                         label = label_names[category]
@@ -171,8 +159,6 @@ if model:
                     if data:
                         df = pd.DataFrame(data)
                         st.dataframe(df, use_container_width=True)
-                        
-                        # Mostrar gráfico de barras
                         st.bar_chart(df.set_index('Categoría')['Cantidad'])
                     else:
                         st.info("No se detectaron objetos con los parámetros actuales.")
@@ -184,9 +170,9 @@ else:
     st.error("No se pudo cargar el modelo. Por favor verifica las dependencias e inténtalo nuevamente.")
     st.stop()
 
-# Información adicional y pie de página
 st.markdown("---")
 st.caption("""
 **Acerca de la aplicación**: Esta aplicación utiliza YOLOv5 para detección de objetos en tiempo real.
 Desarrollada con Streamlit y PyTorch.
 """)
+
