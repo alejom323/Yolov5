@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilos personalizados: fondo amarillo, tipografía Rubik, barra lateral negra, sliders negros
+# Estilos personalizados: fondo amarillo, tipografía Rubik, barra lateral amarilla, sliders con línea activa negra
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Rubik&display=swap');
@@ -34,13 +34,13 @@ st.markdown("""
             color: black !important;
         }
 
-        /* Sliders personalizados: barra negra */
+        /* Sliders personalizados */
         div[data-testid="stSlider"] .stSlider > div > div:nth-child(1) {
-            background-color: #000000 !important; /* Barra activa negra */
+            background-color: #000000 !important; /* Línea activa negra */
         }
 
         div[data-testid="stSlider"] .stSlider > div > div:nth-child(2) {
-            background-color: #d3d3d3 !important; /* Barra inactiva gris claro */
+            background-color: #d3d3d3 !important; /* Línea inactiva gris claro */
         }
 
         /* Etiquetas y subtítulos */
@@ -179,4 +179,3 @@ st.caption("""
 **Acerca de la aplicación**: Esta aplicación utiliza YOLOv5 para detección de objetos en tiempo real.
 Desarrollada con Streamlit y PyTorch.
 """)
-
