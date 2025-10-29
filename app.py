@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilos personalizados: fondo amarillo, tipografía Rubik, barra lateral amarilla, sliders con línea activa negra
+# Estilos personalizados: fondo amarillo, tipografía Rubik, sliders con barra negra
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Rubik&display=swap');
@@ -25,26 +25,31 @@ st.markdown("""
 
         /* Barra lateral */
         section[data-testid="stSidebar"] {
-            background-color: #fff176 !important; /* Fondo amarillo */
+            background-color: #fff176 !important;
             color: black;
         }
 
         /* Texto en la barra lateral */
-        section[data-testid="stSidebar"] .css-1v3fvcr {
+        section[data-testid="stSidebar"] * {
             color: black !important;
+            font-family: 'Rubik', sans-serif !important;
         }
 
-        /* Sliders personalizados */
-        div[data-testid="stSlider"] .stSlider > div > div:nth-child(1) {
-            background-color: #000000 !important; /* Línea activa negra */
+        /* Sliders: cambiar color de la barra activa */
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: #000000 !important; /* Línea activa negra */
         }
 
-        div[data-testid="stSlider"] .stSlider > div > div:nth-child(2) {
-            background-color: #d3d3d3 !important; /* Línea inactiva gris claro */
+        input[type="range"]::-moz-range-track {
+            background: #000000 !important;
         }
 
-        /* Etiquetas y subtítulos */
-        h1, h2, h3, h4, h5, h6, p, label, span {
+        input[type="range"]::-ms-track {
+            background: #000000 !important;
+        }
+
+        /* Tipografía global */
+        h1, h2, h3, h4, h5, h6, p, label, span, div {
             font-family: 'Rubik', sans-serif !important;
         }
     </style>
